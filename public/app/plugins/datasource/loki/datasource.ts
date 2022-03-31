@@ -40,8 +40,8 @@ import { getTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
 import { convertToWebSocketUrl } from 'app/core/utils/explore';
 import {
   lokiResultsToTableModel,
-  lokiStreamResultToDataFrame,
   lokiStreamsToDataFrames,
+  lokiStreamsToRawDataframe,
   processRangeQueryResponse,
 } from './result_transformer';
 import { transformBackendResult } from './backendResultTransformer';
@@ -54,7 +54,6 @@ import {
   LokiRangeQueryRequest,
   LokiResultType,
   LokiStreamResponse,
-  LokiStreamResult,
 } from './types';
 import { LiveStreams, LokiLiveTarget } from './live_streams';
 import LanguageProvider from './language_provider';
@@ -538,9 +537,7 @@ export class LokiDatasource
         }),
         switchMap((res) =>
           of({
-            data: res.data
-              ? res.data.data.result.map((stream: LokiStreamResult) => lokiStreamResultToDataFrame(stream, reverse))
-              : [],
+            data: res.data ? [lokiStreamsToRawDataframe(res.data.data.result, reverse)] : [],
           })
         )
       )
